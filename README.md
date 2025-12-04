@@ -1,73 +1,115 @@
-Examen Final Transversal: Infraestructura TechSolutions
+# Examen Final Transversal: Infraestructura TechSolutions
 
-Este repositorio contiene la solución técnica para el Examen Final de Programación y Administración Linux. El proyecto simula el despliegue de una infraestructura segura para la empresa "TechSolutions", utilizando scripts de automatización en Bash y contenedores Docker.
+Este repositorio contiene la solución técnica desarrollada para el **Examen Final de Programación y Administración Linux**, cuyo objetivo es simular el despliegue de una infraestructura segura para la empresa ficticia **TechSolutions**.  
+El proyecto incluye aprovisionamiento automático, endurecimiento del sistema y un módulo de respaldo, utilizando **scripts Bash**, **Docker** y **Docker Compose**.
 
-1. Guía de Despliegue
+---
 
-Para replicar este entorno, siga estrictamente el siguiente orden de ejecución. Se asume que se utiliza una distribución basada en Debian/Ubuntu.
+## 1. Guía de Despliegue
 
-Paso 1: Clonar el Repositorio
+> **Requisito:** se asume una distribución basada en **Debian/Ubuntu**.  
+> Ejecute los pasos en el **orden exacto**.
 
-Descargue el código fuente a su máquina local:
+### Paso 1: Clonar el Repositorio
 
-git clone [https://github.com/BenjaminGajardoRo/Examen-Linux.git](https://github.com/BenjaminGajardoRo/Examen-Linux.git)
+```bash
+git clone https://github.com/BenjaminGajardoRo/Examen-Linux.git
 cd Examen-Linux
+```
 
+### Paso 2: Aprovisionamiento (Setup)
 
-Paso 2: Aprovisionamiento (Setup)
+Instala dependencias esenciales (Docker, Git, Curl) y despliega el servicio web.
 
-Este módulo instala las dependencias (Docker, Git, Curl) y levanta el contenedor web.
-
+```bash
 cd deploy
-# Dar permisos de ejecución
 chmod +x setup.sh
-# Ejecutar script
 sudo ./setup.sh
+```
 
-# Levantar el servicio web
+Levantar el contenedor web:
+
+```bash
 cd /opt/webapp
 sudo docker-compose up -d
+```
 
+### Paso 3: Endurecimiento del Sistema (Hardening)
 
-Paso 3: Endurecimiento (Hardening)
+Configura el firewall y asegura el servicio SSH.
 
-Este módulo aplica las reglas de firewall y asegura el servicio SSH.
-
-# Volver a la raíz del repositorio y entrar a security
+```bash
 cd ../../security
 chmod +x hardening.sh
 sudo ./hardening.sh
+```
 
+### Paso 4: Respaldo del Sitio (Backup)
 
-Paso 4: Respaldo (Backup)
+Genera una copia comprimida del sitio web y simula su transferencia externa.
 
-Este módulo genera una copia comprimida del sitio web y simula su transferencia.
-
+```bash
 cd ../maintenance
 chmod +x backup.sh
 sudo ./backup.sh
+```
+
+---
+
+## 2. Justificación de Seguridad
+
+Las medidas aplicadas siguen principios fundamentales de **ciberseguridad defensiva** para proteger la infraestructura.
+
+### Deshabilitar acceso root por SSH
+El usuario `root` es un blanco común en ataques de fuerza bruta. Deshabilitar su acceso:
+
+- evita intentos de intrusión directa,
+- obliga a usar usuarios estándar (mejor trazabilidad),
+- reduce la superficie de ataque del servidor.
+
+### Firewall con política “Default Deny”
+El firewall UFW se configura para:
+
+- bloquear todo el tráfico entrante por defecto,
+- permitir solo los puertos:
+  - `22/tcp` → administración por SSH  
+  - `8080/tcp` → servicio web  
+
+Esto evita exposición accidental de otros servicios y mitiga escaneos maliciosos.
+
+---
+
+## 3. Registro de Evidencia
+
+El repositorio incorpora capturas que validan el funcionamiento de cada módulo.
+
+### 3.1 Estado del Firewall (UFW)
+- Política por defecto `deny`
+- Reglas activas para SSH y Web
+
+### 3.2 Configuración SSH
+- `PermitRootLogin no` debidamente aplicado
+
+### 3.3 Acceso Web Exitoso
+- Contenedor Nginx funcionando con `index.html` personalizado
+
+---
+
+## Estructura del Proyecto
+
+```
+Examen-Linux/
+│
+├── deploy/            # Aprovisionamiento del sistema
+│   └── setup.sh
+│
+├── security/          # Hardening del servidor
+│   └── hardening.sh
+│
+├── maintenance/       # Respaldo del sitio
+│   └── backup.sh
+│
+└── README.md
+```
 
 
-2. Justificación de Seguridad
-
-En el desarrollo de este proyecto, se han aplicado principios fundamentales de ciberseguridad defensiva para proteger el servidor de TechSolutions.
-
-En primer lugar, deshabilitar el acceso directo del usuario root a través de SSH es una medida crítica. El usuario root es un objetivo estándar conocido por todos los ciberdelincuentes; permitir su acceso directo facilita enormemente los ataques de fuerza bruta, ya que el atacante solo necesita adivinar la contraseña. Al obligar el uso de un usuario estándar (sysadmin), añadimos una capa de oscuridad y permitimos una mejor auditoría de quién ingresa al sistema (trazabilidad).
-
-En segundo lugar, la implementación del Firewall (UFW) con una política por defecto de "Denegar Todo" (Default Deny) reduce drásticamente la superficie de ataque. Al cerrar todas las puertas y abrir exclusivamente el puerto 22 (gestión) y el 8080 (servicio web), nos aseguramos de que, si algún otro servicio vulnerable se ejecutara accidentalmente en el servidor, este no sería accesible desde el exterior, garantizando así la confidencialidad y la integridad de la infraestructura ante escaneos de red maliciosos.
-
-3. Registro de Evidencia
-
-A continuación se adjuntan las capturas de pantalla que validan el correcto funcionamiento de los scripts.
-
-3.1 Estado del Firewall (UFW Status)
-
-Se evidencia la política por defecto 'deny' y las excepciones para SSH y Web.
-
-3.2 Configuración SSH Modificada
-
-Validación de que PermitRootLogin está configurado en no.
-
-3.3 Acceso Web Exitoso
-
-Prueba de funcionamiento del contenedor Nginx mostrando el index.html personalizado.
